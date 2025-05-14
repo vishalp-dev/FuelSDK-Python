@@ -206,7 +206,6 @@ class ET_Client(object):
         else:
             self.refresh_token()
 
-
     def load_wsdl(self, wsdl_url, wsdl_file_local_location, get_server_wsdl = False):
         """
         retrieve the url of the ExactTarget wsdl...either file: or http:
@@ -231,7 +230,6 @@ class ET_Client(object):
                     self.retrieve_server_wsdl(wsdl_url, file_location)
             
         return file_url
-            
 
     def retrieve_server_wsdl(self, wsdl_url, file_location):
         """
@@ -241,7 +239,6 @@ class ET_Client(object):
         f = open(file_location, 'w')
         f.write(r.text)
         
-
     def build_soap_client(self):
         if self.soap_endpoint is None or not self.soap_endpoint:
             self.soap_endpoint = self.get_soap_endpoint()
@@ -265,7 +262,6 @@ class ET_Client(object):
             security.tokens.append(token)
             self.soap_client.set_options(wsse=security)
         
-
     def refresh_token(self, force_refresh = False):
         """
         Called from many different places right before executing a SOAP call
@@ -433,7 +429,6 @@ class ET_Client(object):
 
         return postResponse
     
-
     def CreateDataExtensions(self, dataExtensionDefinitions):
         """
         write the data extension props to the web service

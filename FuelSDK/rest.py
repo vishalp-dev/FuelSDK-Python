@@ -1,14 +1,10 @@
 import requests
-import json
 import copy
 
-    
-########
-##
-##  Parent class used to determine what status we are in depending on web service call results
-##
-########
 class ET_Constructor(object):
+    """
+    Parent class used to determine what status we are in depending on web service call results
+    """
     results = []
     code = None
     status = False
@@ -91,12 +87,10 @@ class ET_Constructor(object):
             message = 'Can not post properties to ' + obj_type + ' without a dict or list of properties'
             raise Exception(message)
 
-########
-##
-##  Used to Describe Objects via web service call
-##
-########
 class ET_Describe(ET_Constructor):
+    """
+    Used to Describe Objects via web service call
+    """
     def __init__(self, auth_stub, obj_type):        
         auth_stub.refresh_token()
 
@@ -111,12 +105,10 @@ class ET_Describe(ET_Constructor):
             self.message = 'Describe: ' + obj_type
             super(ET_Describe, self).__init__(response)
 
-########
-##
-##    Used to Configure Objects via web service call
-##
-########
 class ET_Configure(ET_Constructor):
+    """
+    Used to Configure Objects via web service call
+    """
     def __init__(self, auth_stub, obj_type, props = None, update = False, delete = False):
         auth_stub.refresh_token()
 
@@ -135,12 +127,10 @@ class ET_Configure(ET_Constructor):
             #self.message = 'Describe: ' + obj_type
             super(ET_Configure, self).__init__(response)
 
-########
-##
-##  Get call to a web service
-##
-########
 class ET_Get(ET_Constructor):
+    """
+    Get call to a web service
+    """
     def __init__(self, auth_stub, obj_type, props = None, search_filter = None, options = None):        
         auth_stub.refresh_token()
         
@@ -205,52 +195,10 @@ class ET_Get(ET_Constructor):
         if response is not None:
             super(ET_Get, self).__init__(response)
 
-########
-##
-##  Call the Exact Target web service Create method
-##
-########
-class ET_Post(ET_Constructor):
-    def __init__(self, auth_stub, obj_type, props = None):
-        auth_stub.refresh_token()
-        response = auth_stub.soap_client.service.Create(None, self.parse_props_into_ws_object(auth_stub, obj_type, props))
-        if(response is not None):
-            super(ET_Post, self).__init__(response)
-
-########
-##
-##  Call the Exact Target web service Update method
-##
-########
-class ET_Patch(ET_Constructor):
-    def __init__(self, auth_stub, obj_type, props = None):
-        auth_stub.refresh_token()
-              
-        response = auth_stub.soap_client.service.Update(None, self.parse_props_into_ws_object(auth_stub, obj_type, props))
-
-        if(response is not None):
-            super(ET_Patch, self).__init__(response)
-
-########
-##
-##  Call the Exact Target web service Delete method
-##
-########
-class ET_Delete(ET_Constructor):
-    def __init__(self, auth_stub, obj_type, props = None):
-        auth_stub.refresh_token()
-              
-        response = auth_stub.soap_client.service.Delete(None, self.parse_props_into_ws_object(auth_stub, obj_type, props))
-
-        if(response is not None):
-            super(ET_Delete, self).__init__(response)
-
-########
-##
-##  Call the Exact Target web service RetrieveRequest passing in ContinueRequest param
-##
-########
 class ET_Continue(ET_Constructor):
+    """
+    Call the Exact Target web service RetrieveRequest passing in ContinueRequest param
+    """
     def __init__(self, auth_stub, request_id):
         auth_stub.refresh_token()
 
@@ -261,12 +209,10 @@ class ET_Continue(ET_Constructor):
         if response is not None:
             super(ET_Continue, self).__init__(response)
 
-########
-##
-##  set up variables for children objects to share
-##
-########
 class ET_BaseObject(object):
+    """
+    set up variables for children objects to share
+    """
     auth_stub = None
     obj = None
     last_request_id = None
@@ -276,12 +222,10 @@ class ET_BaseObject(object):
     search_filter = None
     options = None
 
-########
-##
-##  make sure needed information is available and then make the call to ET_Get to call the webservice
-##
-########
 class ET_GetSupport(ET_BaseObject):
+    """
+    make sure needed information is available and then make the call to ET_Get to call the webservice
+    """
     obj_type = 'ET_GetSupport'   #should be overwritten by inherited class
     
     def get(self, m_props = None, m_filter = None, m_options = None):
@@ -317,12 +261,10 @@ class ET_GetSupport(ET_BaseObject):
             self.last_request_id = obj.request_id
         return obj
 
-########
-##
-##  Restful webservice to Get data
-##
-########
 class ET_GetRest(ET_Constructor):
+    """
+    Restful webservice to Get data
+    """
     def __init__(self, auth_stub, endpoint, qs = None):
         auth_stub.refresh_token()   
         fullendpoint = endpoint
@@ -340,89 +282,10 @@ class ET_GetRest(ET_Constructor):
         obj = super(ET_GetRest, self).__init__(r, True)
         return obj
 
-########
-##
-##  Restful webservice to Get data
-##
-########
-class ET_PostRest(ET_Constructor):  
-    def __init__(self, auth_stub, endpoint, payload):
-        auth_stub.refresh_token()
-        
-        headers = {'content-type' : 'application/json', 'user-agent' : 'FuelSDK-Python-v1.3.0', 'authorization' : 'Bearer ' + auth_stub.authToken}
-        r = requests.post(endpoint, data=json.dumps(payload), headers=headers)
-        
-        obj = super(ET_PostRest, self).__init__(r, True)
-        return obj
-    
-########
-##
-##  Restful webservice to Get data
-##
-########
-class ET_PatchRest(ET_Constructor):
-    def __init__(self, auth_stub, endpoint, payload):
-        auth_stub.refresh_token()
-        
-        headers = {'content-type' : 'application/json', 'user-agent' : 'FuelSDK-Python-v1.3.0', 'authorization' : 'Bearer ' + auth_stub.authToken}
-        r = requests.patch(endpoint , data=json.dumps(payload), headers=headers)
-        
-        obj = super(ET_PatchRest, self).__init__(r, True)
-        return obj
-
-########
-##
-##  Restful webservice to Get data
-##
-########
-class ET_DeleteRest(ET_Constructor):
-    def __init__(self, auth_stub, endpoint):
-        auth_stub.refresh_token()
-
-        headers = {'authorization' : 'Bearer ' + auth_stub.authToken, 'user-agent' : 'FuelSDK-Python-v1.3.0'}
-        r = requests.delete(endpoint, headers=headers)
-        
-        obj = super(ET_DeleteRest, self).__init__(r, True)
-        return obj
-
-########
-##
-##  Get data
-##
-########
-class ET_CUDSupport(ET_GetSupport):
-    
-    def __init__(self):
-        super(ET_CUDSupport, self).__init__()
-        
-    def post(self):
-        if self.extProps is not None:
-            for k, v in self.extProps.items():
-                self.props[k.capitalize] = v
-        
-        obj = ET_Post(self.auth_stub, self.obj_type, self.props)
-        if obj is not None:
-            self.last_request_id = obj.request_id
-        return obj
-    
-    def patch(self):
-        obj = ET_Patch(self.auth_stub, self.obj_type, self.props)
-        if obj is not None:
-            self.last_request_id = obj.request_id
-        return obj
-
-    def delete(self):
-        obj = ET_Delete(self.auth_stub, self.obj_type, self.props)
-        if obj is not None:
-            self.last_request_id = obj.request_id
-        return obj
-
-########
-##
-##  Get data using a REST call
-##
-########
 class ET_GetSupportRest(ET_BaseObject):
+    """
+    Get data using a REST call
+    """
     urlProps = None
     urlPropsRequired = None
     lastPageNumber = None
@@ -493,66 +356,4 @@ class ET_GetSupportRest(ET_BaseObject):
         else:
             self.props['$page'] = originalPageValue
         
-        return obj
-
-########
-##
-##  Create, Update and Delete using a REST call
-##
-########            
-class ET_CUDSupportRest(ET_GetSupportRest):
-    path = None
-    urlProps = None
-    urlPropsRequired = None
-    
-    def __init__(self):
-        super
-    
-    def post(self):
-        completeURL = self.auth_stub.base_api_url + self.path
-        
-        if self.props is not None and type(self.props) is dict:
-            for k, v in self.props.items():
-                if k in self.urlProps:
-                    completeURL = completeURL.replace('{{{0}}}'.format(k), v)
-        
-        for value in self.urlPropsRequired: 
-            if self.props is None or value not in self.props:
-                raise "Unable to process request due to missing required prop: #{value}"
-
-        # Clean Optional Parameters from Endpoint URL first 
-        for value in self.urlProps:          
-            completeURL = completeURL.replace('/{{{0}}}'.format(value), '')      
-
-        obj = ET_PostRest(self.auth_stub, completeURL, self.props)
-        return obj      
-    
-    def patch(self):
-        completeURL = self.auth_stub.base_api_url + self.path
-        # All URL Props are required when doing Patch   
-        for value in self.urlProps: 
-            if self.props is None or value not in self.props:
-                raise "Unable to process request due to missing required prop: #{value}"
-        
-        if self.props is not None and type(self.props) is dict:
-            for k, v in self.props.items():
-                if k in self.urlProps:
-                    completeURL = completeURL.replace('{{{0}}}'.format(k), v)
-        
-        obj = ET_PatchRest(self.auth_stub, completeURL, self.props)         
-        return obj
-    
-    def delete(self):
-        completeURL = self.auth_stub.base_api_url + self.path
-        # All URL Props are required when doing Patch   
-        for value in self.urlProps: 
-            if self.props is None or value not in self.props:
-                raise "Unable to process request due to missing required prop: #{value}"
-        
-        if self.props is not None and type(self.props) is dict:     
-            for k, v in self.props.items():
-                if k in self.urlProps:
-                    completeURL = completeURL.replace('{{{0}}}'.format(k), v)
-
-        obj = ET_DeleteRest(self.auth_stub, completeURL)
         return obj
